@@ -93,7 +93,7 @@ if __name__ == "__main__":
     
     # Convert DataFrame to CSV format and upload to GCS
     eighthr_data_csv = eighthr_data.to_csv(index=False)
-    upload_to_gcs(bucket_name, "processed/eighthr_data.csv", eighthr_data_csv)
+    upload_to_gcs(bucket_name, "data/raw/eighthr_data.csv", eighthr_data_csv)
 
     # Process and upload the onehr files
     onehr_data_file_content = download_data(urls['onehr_data'])
@@ -102,4 +102,4 @@ if __name__ == "__main__":
     
     # Convert DataFrame to CSV format and upload to GCS
     onehr_data_csv = onehr_data.to_csv(index=False)
-    upload_to_gcs(bucket_name, "processed/onehr_data.csv", onehr_data_csv)
+    upload_to_gcs(bucket_name, "data/raw/onehr_data.csv", onehr_data_csv)
