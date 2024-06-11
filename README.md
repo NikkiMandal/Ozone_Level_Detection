@@ -3,9 +3,7 @@
 This project aims to analyze and predict ozone levels to improve air quality management. Using historical data from the Houston, Galveston, and Brazoria areas, we will develop a model to detect peak ozone levels. The model will help in timely intervention and reducing health risks associated with high ozone levels.
 
 The dataset can be accessed via this link -
-'''
-https://archive.ics.uci.edu/dataset/172/ozone+level+detection
-'''
+[UCI Dataset Link](https://archive.ics.uci.edu/dataset/172/ozone+level+detection)
 
 # Publisher of the Dataset:
 The UCI Machine Learning Repository is a collection of datasets widely used in the machine learning community. Hosted by the University of California, Irvine, it offers datasets from diverse domains, such as biology, medicine, and social sciences. These datasets are curated and documented, providing researchers with valuable resources for benchmarking algorithms and developing new techniques in machine learning and data mining.
@@ -22,13 +20,13 @@ The dataset is publicly available for research purposes with no specific data pr
 # Python Access
 To access this dataset using python, we first need to install the ucimlrepo library using the command:
 
-'''
+```
 pip install ucimlrepo
-'''
+```
 
 Then, we run the following code snippet to import the dataset to into our code:
 
-'''
+```
 from ucimlrepo import fetch_ucirepo 
 # fetch dataset 
 ozone_level_detection = fetch_ucirepo(id=172) 
@@ -39,8 +37,7 @@ y = ozone_level_detection.data.targets
 print(ozone_level_detection.metadata) 
 # variable information 
 print(ozone_level_detection.variables) 
-
-'''
+```
 
 # Tables and Columns
 we have two different subsets of data where one of them records 8 hours of ozone activity whereas the other records ozone activity for 1 hour.
