@@ -1,12 +1,23 @@
-# dags/preprocessing_dag.py
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import subprocess
 
-def run_preprocessing_script():
-    """Run the preprocessing script."""
-    subprocess.run(["python", "src/preprocess_data.py"], check=True)
+# Define the GitHub repository URL and the path to the script
+GITHUB_REPO_URL = 'https://github.com/SiddanthEmani/Ozone_Level_Detection.git'
+SCRIPT_PATH = 'https://github.com/SiddanthEmani/Ozone_Level_Detection/src/preprocess_data.py'
+
+def clone_and_run_script():
+    """Clone the GitHub repo and run the preprocessing script."""
+    try:
+        # Clone the repository
+        subprocess.run(['git', 'clone', GITHUB_REPO_URL], check=True)
+
+        # Run the script
+        subprocess.run(['python', SCRIPT_PATH], check=True, cwd='/home/airflow/gcs/data')  # Adjust cwd if necessary
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}")
+        raise
 
 default_args = {
     'owner': 'airflow',
@@ -20,14 +31,14 @@ default_args = {
 with DAG(
     'data_preprocessing_dag',
     default_args=default_args,
-    description='A simple data preprocessing DAG',
-    schedule_interval=timedelta(days=1),
+    description='DAG for data preprocessing',
+    schedule_interval='@daily',  # Runs daily
     start_date=datetime(2024, 6, 10),
     catchup=False,
 ) as dag:
     run_preprocessing = PythonOperator(
         task_id='preprocess_data',
-        python_callable=run_preprocessing_script,
+        python_callable=clone_and_run_script,
     )
 
     run_preprocessing
