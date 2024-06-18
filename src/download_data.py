@@ -1,7 +1,13 @@
 import requests  # For making HTTP requests to download data
 import pandas as pd  # For data manipulation and analysis
 from google.cloud import storage  # GCP library to interact with Google Cloud Storage
-from io import StringIO
+from io import StringIO # For reading string inputs
+import logging  # For logging messages
+
+
+# Configure logging
+logging.basicConfig(filename='logs/download_data.log', level=logging.INFO)
+
 
 def download_data(url):
     """
@@ -9,6 +15,7 @@ def download_data(url):
     """
     response = requests.get(url)  # Make a GET request to the URL
     response.raise_for_status()  # Raise an error if the request was unsuccessful
+    logging.info(f"Downloaded data from {url}")  # Log the download
     return response.content  # Return the content of the response
 
 def upload_to_gcs(bucket_name, destination_blob_name, data):
@@ -20,7 +27,7 @@ def upload_to_gcs(bucket_name, destination_blob_name, data):
     blob = bucket.blob(destination_blob_name)  # Create a blob object with the specified name in the bucket
     
     blob.upload_from_string(data)  # Upload the data to the blob
-    print(f"Uploaded to {bucket_name}/{destination_blob_name}")  # Confirm the upload
+    logging.info(f"Uploaded to {bucket_name}/{destination_blob_name}")  # Log the upload
 
 def process_files(data_file_content, names_file_content, target_column_name):
     """
@@ -48,8 +55,8 @@ def process_files(data_file_content, names_file_content, target_column_name):
     # Add the target class name
     column_names.append(target_column_name)
 
-    print(f"Column Names:", column_names)
-    print(f"Metadata:", metadata)
+    logging.info(f"Column Names: {column_names}")  # Log the column names
+    logging.info(f"Metadata: {metadata}")  # Log the metadata
 
     # Load the data file into a DataFrame without headers
     data_content = data_file_content.decode('utf-8')
@@ -68,10 +75,9 @@ def process_files(data_file_content, names_file_content, target_column_name):
 
     data.columns = column_names  # Assign the column names to the DataFrame
 
-    print(f"Processed Data:")
-    print(data.head())
-    print(f"Data Columns:", data.columns)
-    print(f"Shape of Data:", data.shape)
+    logging.info(f"Processed Data:\n{data.head()}")  # Log the processed data
+    logging.info(f"Data Columns: {data.columns}")  # Log the data columns
+    logging.info(f"Shape of Data: {data.shape}")  # Log the shape of data
 
     return data  # Return the processed DataFrame
 
