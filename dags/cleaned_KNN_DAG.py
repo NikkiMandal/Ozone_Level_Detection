@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operator.email import EmailOperator
 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime(2024, 6, 10),
-    'email_on_failure': False,
-    'email_on_retry': False,
+    'email_on_failure': True,
+    'email_on_retry': True,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
@@ -82,6 +83,14 @@ upload_cleaned_onehr = PythonOperator(
     dag=dag,
 )
 
+email_task = EmailOperator(
+    task_id='send_email',
+    to='nikitamandal03@gmail.com',
+    subject='Airflow Alert: Data cleaned',
+    html_content='Data Cleaned.',
+    dag=dag,
+)
+
 # Set task dependencies
-download_eighthr_data >> remove_missing_values_eighthr >> upload_cleaned_eighthr
-download_onehr_data >> remove_missing_values_onehr >> upload_cleaned_onehr
+download_eighthr_data >> remove_missing_values_eighthr >> upload_cleaned_eighthr >> email_task
+download_onehr_data >> remove_missing_values_onehr >> upload_cleaned_onehr >> email_task
