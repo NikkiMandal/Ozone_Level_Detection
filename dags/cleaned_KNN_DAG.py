@@ -171,7 +171,7 @@ email_task_2 = PythonOperator(
     task_id='send_email_2',
     python_callable=send_email_gmail,
     op_kwargs={
-        'recipient': 'recipient2@example.com',  
+        'recipient': 'nikitamandal03@gmail.com',  
         'subject': 'Success',
         'body': 'Cleaned One hour data is uploaded to GCS Bucket.',
     },
