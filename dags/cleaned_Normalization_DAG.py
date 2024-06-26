@@ -1,3 +1,7 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from airflow.hooks.base import BaseHook
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -8,6 +12,28 @@ import numpy as np
 import io
 import logging
 from sklearn.preprocessing import StandardScaler
+from sklearn.impute import KNNImputer
+
+def send_email_gmail(recipient, subject, body, **kwargs):
+    # Fetch credentials from Airflow connection
+    smtp_conn = BaseHook.get_connection('smtp_default')
+    sender = smtp_conn.login
+    password = smtp_conn.password
+
+    # Set up the MIME
+    msg = MIMEMultipart()
+    msg['From'] = sender
+    msg['To'] = recipient
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Connect to Gmail's SMTP server
+    server = smtplib.SMTP(host=smtp_conn.host, port=smtp_conn.port)
+    server.starttls()
+    server.login(sender, password)
+    server.send_message(msg)
+    server.quit()
+    print(f"Email sent successfully to {recipient} with subject '{subject}'")
 
 def download_from_gcs(bucket_name, source_blob_name, **kwargs):
     """Download file from GCS and return as a pandas DataFrame."""
@@ -62,7 +88,7 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=4),
+    'retry_delay': timedelta(minutes=2),
 }
 
 dag = DAG(
@@ -138,7 +164,29 @@ upload_normalized_onehr = PythonOperator(
     dag=dag,
 )
 
+email_task_1 = PythonOperator(
+    task_id='send_email_1',
+    python_callable=send_email_gmail,
+    op_kwargs={
+        'recipient': 'nikitamandal03@gmail.com',  
+        'subject': 'Success',
+        'body': 'Normalized Eight hour data is uploaded to GCS Bucket.',
+    },
+    dag=dag,
+)
+
+email_task_2 = PythonOperator(
+    task_id='send_email_2',
+    python_callable=send_email_gmail,
+    op_kwargs={
+        'recipient': 'nikitamandal03@gmail.com',  
+        'subject': 'Success',
+        'body': 'Normalized One hour data is uploaded to GCS Bucket.',
+    },
+    dag=dag,
+)
+
 # Set task dependencies
-download_eighthr_data >> normalize_eighthr_data >> upload_normalized_eighthr
-download_onehr_data >> normalize_onehr_data >> upload_normalized_onehr
+download_eighthr_data >> normalize_eighthr_data >> upload_normalized_eighthr >> email_task_1
+download_onehr_data >> normalize_onehr_data >> upload_normalized_onehr >> email_task_2
 [upload_normalized_eighthr, upload_normalized_onehr] 
