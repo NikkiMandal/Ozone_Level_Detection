@@ -3,7 +3,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from airflow.hooks.base import BaseHook
 from datetime import datetime, timedelta
-from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 import logging
@@ -12,6 +11,7 @@ import pandas as pd
 import io
 from sklearn.impute import KNNImputer
 import numpy as np
+
 
 def send_email_gmail(recipient, subject, body, **kwargs):
     # Fetch credentials from Airflow connection
@@ -96,7 +96,7 @@ default_args = {
     'email_on_failure': True,
     'email_on_retry': True,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=2),
 }
 
 dag = DAG(
