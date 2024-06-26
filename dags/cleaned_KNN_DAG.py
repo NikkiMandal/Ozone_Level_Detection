@@ -1,13 +1,39 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from airflow.hooks.base import BaseHook
+from datetime import datetime, timedelta
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.email import EmailOperator
 import logging
 from google.cloud import storage
 import pandas as pd
 import io
 from sklearn.impute import KNNImputer
 import numpy as np
+
+def send_email_gmail(recipient, subject, body, **kwargs):
+    # Fetch credentials from Airflow connection
+    smtp_conn = BaseHook.get_connection('smtp_default')
+    sender = smtp_conn.login
+    password = smtp_conn.password
+
+    # Set up the MIME
+    msg = MIMEMultipart()
+    msg['From'] = sender
+    msg['To'] = recipient
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Connect to Gmail's SMTP server
+    server = smtplib.SMTP(host=smtp_conn.host, port=smtp_conn.port)
+    server.starttls()
+    server.login(sender, password)
+    server.send_message(msg)
+    server.quit()
+    print(f"Email sent successfully to {recipient} with subject '{subject}'")
+
 
 # Define your functions from clean_data.py
 def download_from_gcs(bucket_name, source_blob_name, **kwargs):
@@ -130,23 +156,28 @@ upload_cleaned_onehr = PythonOperator(
     dag=dag,
 )
 
-# Define the email task
-email_task_eighthr = EmailOperator(
-    task_id='send_email_eighthr',
-    to='nikitamandal03@gmail.com',
-    subject='Airflow Alert: Data cleaned for eighthr',
-    html_content='Data Cleaned for eighthr.',
+email_task_1 = PythonOperator(
+    task_id='send_email_1',
+    python_callable=send_email_gmail,
+    op_kwargs={
+        'recipient': 'nikitamandal03@gmail.com',  
+        'subject': 'Success',
+        'body': 'Cleaned Eight hour data is uploaded to GCS Bucket.',
+    },
     dag=dag,
 )
 
-email_task_onehr = EmailOperator(
-    task_id='send_email_onehr',
-    to='nikitamandal03@gmail.com',
-    subject='Airflow Alert: Data cleaned for onehr',
-    html_content='Data Cleaned for onehr.',
+email_task_2 = PythonOperator(
+    task_id='send_email_2',
+    python_callable=send_email_gmail,
+    op_kwargs={
+        'recipient': 'recipient2@example.com',  
+        'subject': 'Success',
+        'body': 'Cleaned One hour data is uploaded to GCS Bucket.',
+    },
     dag=dag,
 )
 
 # Set task dependencies
-download_eighthr_data >> remove_missing_values_eighthr >> upload_cleaned_eighthr >> email_task_eighthr
-download_onehr_data >> remove_missing_values_onehr >> upload_cleaned_onehr >> email_task_onehr
+download_eighthr_data >> remove_missing_values_eighthr >> upload_cleaned_eighthr >> email_task_1
+download_onehr_data >> remove_missing_values_onehr >> upload_cleaned_onehr >> email_task_2
