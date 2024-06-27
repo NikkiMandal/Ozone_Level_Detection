@@ -133,6 +133,9 @@ Copies the service account key (`ozone-level-detection-0160dba47662.json`) into 
 #### Command Execution
 Specifies the command (`CMD ["python", "Randomforest_model_print.py"]`) to execute when the Docker container starts. This command runs the Python script that contains the machine learning model logic (`Randomforest_model_print.py`), initiating the model's functionality within the Dockerized environment.
 
+![Docker Execution](images/docker_UI.png)
+![Docker Execution](images/docker_log.png)
+
 ### Deployment Considerations
 - **Environment Consistency:** Docker ensures that the machine learning model behaves consistently across development, testing, and production environments.
   
