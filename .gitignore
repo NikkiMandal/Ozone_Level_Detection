@@ -136,3 +136,10 @@ plugins/
 *.pyo
 *.pyd
 ozone-level-detection-732733455c9f.json
+
+model/
+*.pkl
+*.log
+*.csv
+classification_report.txt
+confusion_matrix.txt
