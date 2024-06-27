@@ -95,18 +95,24 @@ The names of the files reflect the type of dataset (eight-hour peak or one-hour 
 ## Data Pipeline Components
 
 
-### Data Cleaning and Transformation
-The data pipeline includes several crucial stages to prepare the data for machine learning tasks:
-1. **Data Cleaning**:
-   - We use **K-Nearest Neighbors (KNN)** to impute missing values, ensuring a complete dataset without any gaps.
-2. **Normalization**:
-   - The dataset is **normalized** to standardize the features, ensuring that each feature contributes equally to the model training process.
-3. **SMOTE Analysis**:
-   - **Synthetic Minority Over-sampling Technique (SMOTE)** is applied to handle class imbalance. This step generates synthetic samples for the minority class, promoting a balanced distribution across classes.
-4. **Cross-Validation**:
-   - We perform **cross-validation** to assess the model’s performance. This involves splitting the data into multiple folds, training the model on each fold, and evaluating it on the remaining data. This step ensures robust performance evaluation and helps in fine-tuning the model parameters.
-5. **Data Splitting**:
-   - Finally, the dataset is split into training, testing, and validation sets to facilitate model training and evaluation.
+### Data Splitting and Preparation
+The dataset undergoes several critical stages of preparation to ensure it is ready for machine learning tasks:
+1. **Data Cleaning and Transformation**:
+   - **Data Cleaning**:
+     - Utilizing **K-Nearest Neighbors (KNN)** for imputing missing values, ensuring a complete dataset without gaps.
+   - **Normalization**:
+     - Standardizing the dataset to ensure consistent feature scaling across all variables.
+   - **SMOTE Analysis**:
+     - Applying **Synthetic Minority Over-sampling Technique (SMOTE)** to address class imbalance, generating synthetic samples for minority classes.
+   - **Cross-Validation**:
+     - Performing **cross-validation** to evaluate the model's performance robustly, leveraging data splitting into multiple folds for training and testing.
+   
+2. **Data Splitting**:
+   - Finally, the dataset is divided into training, testing, and validation sets:
+     - **Training Set (`train_df`)**: Comprising 70% of the total dataset, used for model training.
+     - **Validation Set (`val_df`)**: Consisting of 10% of the total dataset, used for parameter tuning and validation.
+     - **Testing Set (`test_df`)**: Encompassing 20% of the total dataset, used to evaluate the model's performance on unseen data.
+This comprehensive approach ensures that the dataset is meticulously prepared and appropriately split for effective machine learning model development and evaluation.
 
 ### Loading Data
 
