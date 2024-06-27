@@ -137,9 +137,5 @@ plugins/
 *.pyd
 ozone-level-detection-732733455c9f.json
 
-model/
-*.pkl
-*.log
-*.csv
-classification_report.txt
-confusion_matrix.txt
+# Ignore the specific file in the src directory
+src/model_RandomForest_dag.py
