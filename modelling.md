@@ -4,7 +4,6 @@
 Random Forest is an ensemble learning method primarily used for classification and regression tasks. It operates by constructing multiple decision trees during training and outputting the class that is the mode of the classes (classification) or mean prediction (regression) of the individual trees.
 
 ## How It Works
-
 ### Bootstrap Sampling
 Random Forest starts with creating several bootstrap samples from the original dataset. Bootstrap sampling involves random sampling with replacement, meaning some data points may appear multiple times in one sample and not at all in another.
 
@@ -20,7 +19,7 @@ Once all trees are constructed, the forest makes a prediction by aggregating the
 The Random Forest model architecture consists of the following components:
 - **Input Layer:** The dataset features are input into the Random Forest model. Each feature vector represents a data point.
 - **Bootstrap Sampling:** Multiple bootstrap samples are created from the input dataset. Each sample is used to train a different decision tree.
-- **Decision Trees:** Each bootstrap sample is used to train a separate decision tree. Each tree is grown to the full depth or until a stopping criterion (e.g., minimum number of samples in a node) is met. During the training of each tree, a random subset of features is considered for splitting at each node.
+- **Decision Trees:** Each bootstrap sample is used to train a separate decision tree. Each tree is grown to the full depth or until a stopping criterion (e.g., the minimum number of samples in a node) is met. During the training of each tree, a random subset of features is considered for splitting at each node.
 - **Voting/Averaging:** For classification tasks, each tree in the forest votes for a class label, and the class label with the majority vote is chosen as the final prediction. For regression tasks, the predictions of all trees are averaged to produce the final prediction.
 - **Output Layer:** The final prediction is outputted as the result of the Random Forest model.
 
@@ -122,35 +121,24 @@ train_and_evaluate()
 
 # Orchestrating Workflows using Airflow
 
-In this project, orchestration of workflows is managed through Apache Airflow, a powerful tool that schedules and manages complex workflows.
-In production, these workflows are scaled and managed through Google Cloud Composer, a managed Airflow service that integrates seamlessly with other Google Cloud services,
-enhancing our deployment's efficiency and reliability. The model deployment is managed through Vertex AI.
+In this project, the orchestration of workflows is managed through Apache Airflow, a powerful tool that schedules and manages complex workflows.
+In production, these workflows are scaled and managed through Google Cloud Composer, a managed Airflow service that integrates seamlessly with other Google Cloud services, enhancing our deployment's efficiency and reliability. The model deployment is managed through Vertex AI.
 
 ## Setup for Docker
-Docker setup involves creating a Dockerfile that specifies the Airflow version and configuration settings appropriate for the
- project’s needs. Docker-compose files are used to define services, volumes, and networks that represent the Airflow components
-such as the web server, scheduler, and worker.
+Docker setup involves creating a Dockerfile that specifies the Airflow version and configuration settings appropriate for the project’s needs. Docker-compose files are used to define services, volumes, and networks that represent the Airflow components such as the web server, scheduler, and worker.
 
 ## Initial Setup for AirFlow
-Setting up Airflow involves defining Directed Acyclic Graphs (DAGs), which outline the sequence of
-tasks and their dependencies. Each task is represented by operators, such as PythonOperator or BashOperator, which
-execute specific pieces of code necessary for the workflow.
+Setting up Airflow involves defining Directed Acyclic Graphs (DAGs), which outline the sequence of tasks and their dependencies. Each task is represented by operators, such as PythonOperator or BashOperator, which execute specific pieces of code necessary for the workflow.
 
 ## General Runs of Airflow inside Google Composer
 When a DAG is triggered (either manually or as per its schedule), it undergoes several stages:
 
 1. **Queued:** The task is queued by the scheduler.
 2. **Running:** A worker picks up the task and begins execution.
-3. **Success/Failure:** Once execution completes, the task is marked as successful or failed.
+3. **Success/Failure:** Once execution is completed, the task is marked as successful or failed.
 
 ## Operating through UI inside Airflow
-Airflow's web-based UI allows users to monitor and manage their workflows. It provides detailed visualizations of pipeline
- dependencies, logging, and the status of various tasks. The UI is crucial for troubleshooting and understanding the behavior
-of different tasks within the DAGs.
+Airflow's web-based UI allows users to monitor and manage their workflows. It provides detailed visualizations of pipeline dependencies, logging, and the status of various tasks. The UI is crucial for troubleshooting and understanding the behavior of different functions within the DAGs.
 
 ## Conclusion
-Random Forest is a powerful and versatile model that can improve prediction accuracy and robustness. By tuning its
-hyperparameters using GridSearchCV, you can optimize its performance for your specific dataset and task. The model architecture,
- which involves bootstrap sampling, decision tree construction, and aggregation, helps to enhance the model's ability to generalize and provide
-reliable predictions. Incorporating optimizers and detailed training procedures ensures the model is fine-tuned and performs well across different
-data subsets.
+Random Forest is a powerful and versatile model that can improve prediction accuracy and robustness. By tuning its hyperparameters using GridSearchCV, you can optimize its performance for your specific dataset and task. The model architecture, which involves bootstrap sampling, decision tree construction, and aggregation, helps to enhance the model's ability to generalize and provide reliable predictions. Incorporating optimizers and detailed training procedures ensures the model is fine-tuned and performs well across different data subsets.
