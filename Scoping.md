@@ -21,6 +21,8 @@ To achieve these goals, we will employ sophisticated prediction techniques, leve
 
 Ultimately, our project strives to create a robust and reliable tool for air quality management. By enhancing the ability to predict and respond to ozone pollution, we aim to contribute to the well-being of communities and the preservation of natural ecosystems in the Houston, Galveston, and Brazoria areas. This initiative aligns with broader efforts to address air pollution and promote sustainable development, reflecting our commitment to leveraging technology for the betterment of society and the environment.
 
+![Flowchart Screenshot](images/Flowchart.png)
+
 ## 2. Dataset Information
 
 The dataset includes records from 1998 to 2004 for eight-hour and one-hour peak ozone levels. It contains 72 features and 2536 instances, focusing on atmospheric conditions such as temperature, wind speed, and humidity.
