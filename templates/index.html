@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ozone Level Prediction</title>
+</head>
+<body>
+    <h1>Ozone Level Prediction</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/metrics">Metrics</a> |
+        <a href="/feature_importance">Feature Importance</a>
+    </nav>
+    <form id="prediction-form">
+        <label for="instances">Enter Test Cases (JSON format):</label><br>
+        <textarea id="instances" name="instances" rows="10" cols="50"></textarea><br>
+        <button type="submit">Predict</button>
+    </form>
+    <h2>Predictions:</h2>
+    <pre id="predictions"></pre>
+    <h2>Error:</h2>
+    <pre id="error"></pre>
+
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const instances = document.getElementById('instances').value;
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: instances
+            });
+            const result = await response.json();
+            if (response.ok) {
+                document.getElementById('predictions').textContent = JSON.stringify(result, null, 2);
+                document.getElementById('error').textContent = "";
+            } else {
+                document.getElementById('error').textContent = JSON.stringify(result, null, 2);
+                document.getElementById('predictions').textContent = "";
+            }
+        });
+    </script>
+</body>
+</html>
