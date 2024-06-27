@@ -88,7 +88,6 @@ logs/
 *~
 
 # Airflow
-dags/
 logs/
 plugins/
 
