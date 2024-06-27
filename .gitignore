@@ -138,3 +138,9 @@ ozone-level-detection-732733455c9f.json
 
 # Ignore the specific file in the src directory
 src/model_RandomForest_dag.py
+
+#Test File
+test.py
+
+# Ignore model .pkl files
+models/*.pkl
