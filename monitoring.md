@@ -20,6 +20,34 @@ Define DAGs in Airflow that orchestrate data processing tasks, ensuring dependen
 - Artifact Versioning: Ensure proper versioning and storage of trained models and artifacts in Google Cloud Storage (GCS).
 - Deployment Status: Monitor the status of model deployment to Vertex AI endpoints.
 - Resource Utilization: Track resource consumption (CPU, memory) during model training and deployment.
+
+ 
+**Dockerfile for Containerizing Machine Learning Model**
+
+```
+dockerfile
+#Use the official Python image from the Docker Hub
+FROM python:3.9-slim
+
+#Set the working directory
+WORKDIR /app
+
+#Copy the requirements.txt file into the container at /app
+COPY requirements.txt .
+
+#Install any dependencies specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+#Copy the rest of the working directory contents into the container at /app
+COPY . .
+
+#Copy the service account key to the container
+COPY ozone-level-detection-0160dba47662.json /app/
+
+#Specify the command to run your application
+CMD ["python", "Randomforest_model_print.py"]
+```
+
 ![MLFlow](images/vertex_ai_artifacts.png)
 
 **Implementation:**
@@ -30,21 +58,26 @@ Define DAGs in Airflow that orchestrate data processing tasks, ensuring dependen
 ## 3. Integration with Flask API and FastAPI
 **Objective:** Monitor the performance and availability of APIs serving machine learning models.
 
+![MLFlow](images/flask_api.png)
+
 **Monitoring Points:**
 - API Response Time: Measure the response time for API endpoints.
 - Endpoint Availability: Monitor uptime and availability of Flask API and FastAPI endpoints.
 - Request Rate: Track the rate of incoming requests to ensure scalability and performance.
 - Error Rates: Monitor error rates and exceptions thrown by API endpoints. We are monitoring the metrics of the model using Flask API.
+  
+![MLFlow](images/feature_imp_flask.png)
 
 **Implementation:**
 - Deploy Flask API and FastAPI endpoints that interface with your machine learning models deployed on Vertex AI.
 - Use logging frameworks like logging in Python to capture application logs and metrics.
 - Implement health checks and status endpoints within Flask and FastAPI applications for monitoring.
-- 
+  
 ## Execution using MLflow
 For managing the end-to-end machine learning lifecycle, including experiment tracking, reproducibility, and model versioning, we use MLflow. MLflow helps us streamline experimentation, track model parameters and metrics, and easily reproduce models for deployment.
 
 ![MLFlow](images/MLflow_overview.png)
+
 ![MLFlow](images/MLflow_graphs.png)
 
 ## Example Monitoring Tools and Techniques
