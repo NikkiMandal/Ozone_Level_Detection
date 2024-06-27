@@ -1,3 +1,4 @@
+# Updated cross-validation logic
 from datetime import datetime, timedelta
 import logging
 from airflow import DAG
@@ -30,7 +31,7 @@ def send_email_gmail(recipient, subject, body, **kwargs):
     logging.info(f"Email sent successfully to {recipient} with subject '{subject}'")
 
 def load_csv_from_gcs(bucket_name, object_name):
-    logging.info(f"Loading data from {bucket_name}/{object_name}")
+    """Load a CSV file from Google Cloud Storage into a Pandas DataFrame."""
     client = storage.Client()
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(object_name)
@@ -39,9 +40,9 @@ def load_csv_from_gcs(bucket_name, object_name):
     return df
 
 def upload_to_gcs(bucket_name, destination_blob_name, df):
+    """Upload a pandas DataFrame to GCS."""
     try:
         if df is not None:
-            logging.info(f"Uploading data to {bucket_name}/{destination_blob_name}")
             storage_client = storage.Client()
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(destination_blob_name)
@@ -54,30 +55,32 @@ def upload_to_gcs(bucket_name, destination_blob_name, df):
         logging.error(f"Error uploading to GCS: {e}")
         raise
 
-def perform_cross_validation(**kwargs):
-    ti = kwargs['ti']
-    df_dict = ti.xcom_pull(task_ids=kwargs['task_id'])
-    df = pd.DataFrame(df_dict)
-    
-    logging.info("Performing cross-validation")
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    for fold, (train_index, val_index) in enumerate(skf.split(df, df['Ozone_Level'])):
-        X_train, X_val = df.iloc[train_index], df.iloc[val_index]
-        y_train, y_val = df['Ozone_Level'].iloc[train_index], df['Ozone_Level'].iloc[val_index]
-        logging.info(f"Fold {fold}: Train size = {len(train_index)}, Validation size = {len(val_index)}")
-    
-    return df.to_dict()
-
-def load_data_task(bucket_name, object_name, **kwargs):
+# Updated cross-validation logic
+def perform_cross_validation(bucket_name, object_name, dataset_name, label_column, **kwargs):
     df = load_csv_from_gcs(bucket_name, object_name)
-    return df.to_dict()
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    fold = 1
+    fold_paths = {'train': [], 'val': []}
+    for train_index, val_index in skf.split(df, df[label_column]):
+        X_train, X_val = df.iloc[train_index], df.iloc[val_index]
+        y_train, y_val = df[label_column].iloc[train_index], df[label_column].iloc[val_index]
 
-def upload_data_task(bucket_name, destination_blob_name, task_id, **kwargs):
-    ti = kwargs['ti']
-    df_dict = ti.xcom_pull(task_ids=task_id)
-    df = pd.DataFrame(df_dict)
-    upload_to_gcs(bucket_name, destination_blob_name, df)
+        train_data = pd.concat([X_train, y_train], axis=1)
+        val_data = pd.concat([X_val, y_val], axis=1)
 
+        train_path = f'cross_validation/{dataset_name}_train_fold{fold}.csv'
+        val_path = f'cross_validation/{dataset_name}_val_fold{fold}.csv'
+
+        upload_to_gcs(bucket_name, train_path, train_data)
+        upload_to_gcs(bucket_name, val_path, val_data)
+
+        fold_paths['train'].append(train_path)
+        fold_paths['val'].append(val_path)
+
+        fold += 1
+    return fold_paths
+
+# Define your DAG
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -95,26 +98,10 @@ dag = DAG(
     schedule_interval=None,
 )
 
-load_eighthr_task = PythonOperator(
-    task_id='load_eighthr_data',
-    python_callable=load_data_task,
-    op_kwargs={'bucket_name': 'ozone_level_detection', 'object_name': 'data/cleaned/eighthr_train_data.csv'},
-    provide_context=True,
-    dag=dag,
-)
-
-load_onehr_task = PythonOperator(
-    task_id='load_onehr_data',
-    python_callable=load_data_task,
-    op_kwargs={'bucket_name': 'ozone_level_detection', 'object_name': 'data/cleaned/onehr_train_data.csv'},
-    provide_context=True,
-    dag=dag,
-)
-
 cross_validation_eighthr_task = PythonOperator(
     task_id='cross_validation_eighthr',
     python_callable=perform_cross_validation,
-    op_kwargs={'task_id': 'load_eighthr_data'},
+    op_kwargs={'bucket_name': 'ozone_level_detection', 'object_name': 'SMOTE_analysis/eighthr_train_resampled.csv', 'dataset_name': 'eighthr', 'label_column': 'Ozone_Level'},
     provide_context=True,
     dag=dag,
 )
@@ -122,43 +109,12 @@ cross_validation_eighthr_task = PythonOperator(
 cross_validation_onehr_task = PythonOperator(
     task_id='cross_validation_onehr',
     python_callable=perform_cross_validation,
-    op_kwargs={'task_id': 'load_onehr_data'},
+    op_kwargs={'bucket_name': 'ozone_level_detection', 'object_name': 'SMOTE_analysis/onehr_train_resampled.csv', 'dataset_name': 'onehr', 'label_column': 'Ozone_Level'},
     provide_context=True,
     dag=dag,
 )
 
-upload_eighthr_train_task = PythonOperator(
-    task_id='upload_eighthr_train',
-    python_callable=upload_data_task,
-    op_kwargs={'bucket_name': 'ozone_level_detection', 'destination_blob_name': 'data/cross_validated/eighthr_afterCV_train.csv', 'task_id': 'cross_validation_eighthr'},
-    provide_context=True,
-    dag=dag,
-)
-
-upload_onehr_train_task = PythonOperator(
-    task_id='upload_onehr_train',
-    python_callable=upload_data_task,
-    op_kwargs={'bucket_name': 'ozone_level_detection', 'destination_blob_name': 'data/cross_validated/onehr_afterCV_train.csv', 'task_id': 'cross_validation_onehr'},
-    provide_context=True,
-    dag=dag,
-)
-
-upload_eighthr_val_task = PythonOperator(
-    task_id='upload_eighthr_val',
-    python_callable=upload_data_task,
-    op_kwargs={'bucket_name': 'ozone_level_detection', 'destination_blob_name': 'data/cross_validated/eighthr_afterCV_val.csv', 'task_id': 'cross_validation_eighthr'},
-    provide_context=True,
-    dag=dag,
-)
-
-upload_onehr_val_task = PythonOperator(
-    task_id='upload_onehr_val',
-    python_callable=upload_data_task,
-    op_kwargs={'bucket_name': 'ozone_level_detection', 'destination_blob_name': 'data/cross_validated/onehr_afterCV_val.csv', 'task_id': 'cross_validation_onehr'},
-    provide_context=True,
-    dag=dag,
-)
-
+# Email tasks
 email_task_1 = PythonOperator(
     task_id='send_email_1',
     python_callable=send_email_gmail,
@@ -181,5 +137,6 @@ email_task_2 = PythonOperator(
     dag=dag,
 )
 
-load_eighthr_task >> cross_validation_eighthr_task >> [upload_eighthr_train_task, upload_eighthr_val_task] >> email_task_1
-load_onehr_task >> cross_validation_onehr_task >> [upload_onehr_train_task, upload_onehr_val_task] >> email_task_2
+# Dependencies
+cross_validation_eighthr_task >> email_task_1
+cross_validation_onehr_task >> email_task_2
