@@ -22,6 +22,7 @@ The Random Forest model architecture consists of the following components:
 - **Decision Trees:** Each bootstrap sample is used to train a separate decision tree. Each tree is grown to the full depth or until a stopping criterion (e.g., the minimum number of samples in a node) is met. During the training of each tree, a random subset of features is considered for splitting at each node.
 - **Voting/Averaging:** For classification tasks, each tree in the forest votes for a class label, and the class label with the majority vote is chosen as the final prediction. For regression tasks, the predictions of all trees are averaged to produce the final prediction.
 - **Output Layer:** The final prediction is outputted as the result of the Random Forest model.
+![Example Screenshot](images/Model_Architecture.png)
 
 ## Optimizers and Training Details
 While Random Forest does not use traditional optimization algorithms like gradient descent (commonly used in neural networks), it optimizes the decision trees through different mechanisms:
@@ -120,6 +121,8 @@ def train_and_evaluate():
 train_and_evaluate()
 
 # Orchestrating Workflows using Airflow
+![Example Screenshot](iimages/airflow.jpg)
+
 
 In this project, the orchestration of workflows is managed through Apache Airflow, a powerful tool that schedules and manages complex workflows.
 In production, these workflows are scaled and managed through Google Cloud Composer, a managed Airflow service that integrates seamlessly with other Google Cloud services, enhancing our deployment's efficiency and reliability. The model deployment is managed through Vertex AI.
