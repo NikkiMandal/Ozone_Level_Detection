@@ -121,7 +121,7 @@ def train_and_evaluate():
 train_and_evaluate()
 
 # Orchestrating Workflows using Airflow
-![Example Screenshot](iimages/airflow.jpg)
+![Example Screenshot](images/airflow.jpg)
 
 
 In this project, the orchestration of workflows is managed through Apache Airflow, a powerful tool that schedules and manages complex workflows.
