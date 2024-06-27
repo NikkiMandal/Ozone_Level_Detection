@@ -48,8 +48,8 @@ The dataset files are named based on their type and processing stage. Here’s a
 - `eighthr_data_KNN.csv` and 'onehr_data_KNN.csv': Data after cleaning using K-Nearest Neighbors (KNN) for missing value imputation.
 - `eighthr_data_normalized.csv` and `onehr_data_normalized.csv`: Data after normalization for consistent scaling.
 - `eighthr_train_resampled.csv` and `onehr_train_resampled.csv`: Data after Synthetic Minority Over-sampling Technique (SMOTE) analysis to handle class imbalance.
-- `eighthr_train_foldx.csv` and 'eighthr_val_foldx.csv': Eight hour data after cross-validation, ready for model evaluation. (x= 1, 2, 3, 4, 5)
-- - `onehr_train_foldx.csv` and 'onehr_val_foldx.csv': One hour data after cross-validation, ready for model evaluation. (x= 1, 2, 3, 4, 5)
+- `eighthr_train_foldx.csv` and 'eighthr_val_foldx.csv': Eight-hour data after cross-validation, ready for model evaluation. (x= 1, 2, 3, 4, 5)
+- `onehr_train_foldx.csv` and 'onehr_val_foldx.csv': One-hour data after cross-validation, ready for model evaluation. (x= 1, 2, 3, 4, 5)
 
 #### Scripts
 - `cleaned_KNN_dag.py`: Script for cleaning the raw data using KNN for missing value imputation.
@@ -160,4 +160,3 @@ processed_df = process_data(data_df)
 
 # Upload processed data back to GCS
 upload_to_gcs('my_bucket', 'data/processed_data.csv', processed_df)
-
